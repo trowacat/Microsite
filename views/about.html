@@ -2,12 +2,12 @@
 <html>
 
 <head>
-    <title>Assignment 2 - About</title>
-    <link rel="stylesheet" type="text/css" href="../public/css/site.css" />
+    <title>About</title>
+    <link rel="stylesheet" type="text/css" href="css/site.css" />
 
-    <script src="../public/js/script.js"></script>
+    <script src="js/script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="../node_modules/scramblejs/dist/scramble.js"></script>
+    <script src="node_modules/scramblejs/dist/scramble.js"></script>
 
 </head>
 
@@ -21,12 +21,12 @@
         <div class="hamburger">
             <div></div>
         </div>
-       <div class="menu">
+        <div class="menu">
             <div>
                 <ul>
-                    <li><a href="home.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
-</ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -39,14 +39,14 @@
 
             <div class="background"></div>
             <div class="title">
-                <h3>wissmann - 2017</h3>
-                <h1>Hello</h1>
+                <h3>Brandon Wissmann</h3>
+                <h1>the developer</h1>
 
                 <p id="first">
-
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere ad saepe quo, neque facilis, eum veritatis ut odio assumenda
-                    voluptatibus architecto ipsa, ratione ipsum culpa. Voluptas quisquam beatae, quod porro.
-                </p>
+                    <p> Hello, I am in my third semester of the CPA program currently. I enjoy the idea of web developemnt and
+                        would love to do something like that in the future. I enjoy learning new technologies and playing
+                        around with them and am amazed at the amount there is out there. </p>
+                        <footer>2017 - Brandon Wissmann</footer>
             </div>
         </div>
     </div>
@@ -56,9 +56,10 @@
 </body>
 
 <script>
-Scramble.select('h1')
-.setText('This is an about page!')
-.descramble();
+    Scramble.select('h1')
+        .setText('This is an about page!')
+        .descramble();
+
 </script>
 
 

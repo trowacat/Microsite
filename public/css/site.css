@@ -1,7 +1,7 @@
 
 
 
-  a:hover {
+a:hover {
     background: #edf3f8;
     color: #212121;
 }
@@ -252,6 +252,9 @@ a:active {
   transition: width 0.4s ease;
 }
 
+ul {
+    list-style-type: none;
+}
 
 .background {
   position: absolute;
@@ -314,6 +317,11 @@ a:active {
     font-weight: 200;
     font-size: 16px;
     color: #111;
+}
+
+footer {
+  padding-top: 25px;
+  color: #8491A3; 
 }
 
 .point {
