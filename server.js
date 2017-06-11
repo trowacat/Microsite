@@ -10,9 +10,10 @@
 *
 ********************************************************************************/
 
-var express = require("express");
-var path = require("path");
-var app = express();
+const express = require("express");
+const dataService = require("./data-service.js");
+const path = require("path");
+const app = express();
 
 app.use(express.static('public'));
 
@@ -20,22 +21,79 @@ var HTTP_PORT = process.env.PORT || 8080;
 
 // call this function after the http server starts listening for requests
 function onHttpStart() {
-  console.log("Express http server listening on: " + HTTP_PORT);
+    console.log("Express http server listening on: " + HTTP_PORT);
 }
 
 // setup a 'route' to listen on the default url path (http://localhost)
-app.get("/", function(req,res){
-   res.sendFile(path.join(__dirname + "/views/home.html"));
+app.get("/", function (req, res) {
+    res.sendFile(path.join(__dirname + "/views/home.html"));
 });
 
 // setup another route to listen on /about
-app.get("/about", function(req,res){
-  res.sendFile(path.join(__dirname + "/views/about.html"));
+app.get("/about", function (req, res) {
+    res.sendFile(path.join(__dirname + "/views/about.html"));
 });
 
-app.get("/scramble", function(req,res){
-  res.sendFile(path.join(__dirname + "/node_modules/scramblejs/dist/scramble.js"));
+app.get("/scramble", function (req, res) {
+    res.sendFile(path.join(__dirname + "/node_modules/scramblejs/dist/scramble.js"));
 });
 
+app.get("/employees", function (req, res) {
+    if (req.query.status) {
+        dataService.getAllEmployeesByStatus(req.query.status).then((dataMessage) => {
+            res.json({ dataMessage });
+        }).catch((errorMessage) => {
+            res.json({ message: errorMessage });
+        });
+    } else if (req.query.manager) {
+        dataService.getAllEmployeesByManager(req.query.manager).then((dataMessage) => {
+            res.json({ dataMessage });
+        }).catch((errorMessage) => {
+            res.json({ message: errorMessage });
+        });
+    } else if (req.query.department) {
+        dataService.getAllEmployeesByDepartment(req.query.department).then((dataMessage) => {
+            res.json({ dataMessage });
+        }).catch((errorMessage) => {
+            res.json({ message: errorMessage });
+        });
+    } else {
+        dataService.getAllEmployees().then((dataMessage) => {
+            res.json({ dataMessage });
+        }).catch((errorMessage) => {
+            res.json({ message: errorMessage });
+        });
+
+    }
+});
+
+app.get("/employees/:empNum", function (req, res) {
+    dataService.getEmployeeByNum(req.params.empNum).then((dataMessage) => {
+        res.json({ dataMessage });
+    }).catch((errorMessage) => {
+        res.json({ message: errorMessage });
+    });
+});
+
+app.get("/departments", function (req, res) {
+    dataService.getDepartments().then((dataMessage) => {
+        res.json({ dataMessage });
+    }).catch((errorMessage) => {
+        res.json({ message: errorMessage });
+    });
+});
+
+app.get("/managers", function (req, res) {
+    dataService.getManagers().then((dataMessage) => {
+        res.json({ dataMessage });
+    }).catch((errorMessage) => {
+        res.json({ message: errorMessage });
+    });
+})
+
+app.use(function (req, res) {
+    res.status(404).send("Page not found.");
+})
 // setup http server to listen on HTTP_PORT
-app.listen(HTTP_PORT, onHttpStart);
+dataService.initialize().then(() =>
+    app.listen(HTTP_PORT, onHttpStart)).catch(() => console.log("Unable to start the server."));
