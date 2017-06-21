@@ -34,7 +34,7 @@ app.engine(".hbs", exphbs({
                 return options.fn(this);
         }
     }
-        
+
 }));
 
 app.set("view engine", ".hbs");
@@ -118,21 +118,22 @@ app.get("/departments", function (req, res) {
 
 app.get("/managers", function (req, res) {
     dataService.getManagers().then((data) => {
-        res.json({ dataMessage });
-    }).catch((errorMessage) => {
-        res.json({ message: errorMessage });
+        res.render("employeeList", {
+            data: data, title: "Employees(Managers)" }).catch((errorMessage) => {
+        res.json({ message: errorMessage }).then(res.render("employeeList", { data: {}, title:
+"Employees (Managers)" }));
+        });
+    })});
+
+    app.post("/employee/update", (req, res) => {
+        console.log(req.body + "employee update being called");
+        dataService.updateEmployee(req.body)
+            .then(res.redirect("/employees"));
     });
-})
 
-app.post("/employee/update", (req, res) => {
-    console.log(req.body + "employee update being called");
-    dataService.updateEmployee(req.body)
-        .then(res.redirect("/employees"));
-});
-
-app.use(function (req, res) {
-    res.status(404).send("Page not found.");
-})
-// setup http server to listen on HTTP_PORT
-dataService.initialize().then(() =>
-    app.listen(HTTP_PORT, onHttpStart)).catch(() => console.log("Unable to start the server."));
+    app.use(function (req, res) {
+        res.status(404).send("Page not found.");
+    })
+    // setup http server to listen on HTTP_PORT
+    dataService.initialize().then(() =>
+        app.listen(HTTP_PORT, onHttpStart)).catch(() => console.log("Unable to start the server."));
