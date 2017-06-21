@@ -265,20 +265,26 @@ ul {
   background: #263238;
   overflow: hidden;
 }
+
+
 .title {
 
   position: absolute;
   left: 50%;
   top: 40%;
   transform: translateX(-50%) translateY(-50%);
-  font-family: "times";
-  text-align: center;
-  width: 60%; 
+  width: 75%; 
   background: white;
   padding: 20px;
   border-bottom: 10px solid #111;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  max-height: 60vh;
   }
 
+.title::-webkit-scrollbar{
+  display:none;
+}
 
   .content {
     z-index: 10;
@@ -287,8 +293,8 @@ ul {
     top: 105%;
     transform: translateX(-50%) translateY(-50%);
     font-family: "times";
-    text-align: center;
     width: 80%;
+    
   }
   h1 {
     position: relative;
@@ -322,6 +328,7 @@ ul {
 footer {
   padding-top: 25px;
   color: #8491A3; 
+  text-align: center;
 }
 
 .point {

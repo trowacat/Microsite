@@ -3,6 +3,7 @@ var fs = require('fs')
 var exports = module.exports = {};
 var employees = [];
 var departments = [];
+var empCount = 0;
 
 module.exports.initialize = () => {
     return new Promise((resolve, reject) => {
@@ -23,9 +24,34 @@ module.exports.initialize = () => {
             if (departments == "")
                 reject("Unable to read file");
         });
+        empCount = employees.length;
         resolve();
     });
 };
+
+module.exports.addEmployee = (employeeData) => {
+    console.log(employeeData + "!!EMPLOYEE DATA BEING ADDED ADD EMPLOYEE!!!");
+    return new Promise((resolve, reject) => {
+        empCount++;
+        employeeData.employeeNum = empCount;
+        employees.push(employeeData);
+        resolve();
+    })
+}
+
+module.exports.updateEmployee = (employeeData) => {
+  
+    return new Promise((resolve, reject) => {
+
+        for(let i = 0; i < employees.length; i++){
+            if(employeeData.employeeNum == employees[i].employeeNum){
+                employees[i] = employeeData;
+            }
+        }
+
+        resolve();
+    })
+}
 
 module.exports.getAllEmployees = () => {
     return new Promise((resolve, reject) => {
@@ -44,10 +70,10 @@ module.exports.getAllEmployeesByStatus = (status) => {
             reject("No results in employee");
         else {
             var statusEmployees = [];
-        for (i = 0; i < employees.length; i++) {
-            if (employees[i].status == status)
-                statusEmployees.push(employees[i]);
-        }
+            for (i = 0; i < employees.length; i++) {
+                if (employees[i].status == status)
+                    statusEmployees.push(employees[i]);
+            }
         }
         resolve(statusEmployees);
 
@@ -60,10 +86,10 @@ module.exports.getAllEmployeesByDepartment = (department) => {
             reject("No results in employee");
         else {
             var departEmployees = [];
-        for (i = 0; i < employees.length; i++) {
-            if (employees[i].department == department)
-                departEmployees.push(employees[i]);
-        }
+            for (i = 0; i < employees.length; i++) {
+                if (employees[i].department == department)
+                    departEmployees.push(employees[i]);
+            }
         }
         resolve(departEmployees);
 

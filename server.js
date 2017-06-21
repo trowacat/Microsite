@@ -28,12 +28,13 @@ app.engine(".hbs", exphbs({
         equal: function (lvalue, rvalue, options) {
             if (arguments.length < 3)
                 throw new Error("Handlebars Helper equal needs 2 parameters");
-            if (lvalue != rvalue) 
+            if (lvalue != rvalue)
                 return options.inverse(this);
-            else 
-            return options.fn(this);
+            else
+                return options.fn(this);
         }
     }
+        
 }));
 
 app.set("view engine", ".hbs");
@@ -47,12 +48,12 @@ function onHttpStart() {
 
 // setup a 'route' to listen on the default url path (http://localhost)
 app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname + "/views/home.html"));
+    res.render("home");
 });
 
 // setup another route to listen on /about
 app.get("/about", function (req, res) {
-    res.sendFile(path.join(__dirname + "/views/about.html"));
+    res.render("about");
 });
 
 app.get("/scramble", function (req, res) {
@@ -61,56 +62,73 @@ app.get("/scramble", function (req, res) {
 
 app.get("/employees", function (req, res) {
     if (req.query.status) {
-        dataService.getAllEmployeesByStatus(req.query.status).then((dataMessage) => {
-            res.json({ dataMessage });
+        dataService.getAllEmployeesByStatus(req.query.status).then((data) => {
+            res.render("employeeList", { data: dataMessage, title: "Employees" });
         }).catch((errorMessage) => {
-            res.json({ message: errorMessage });
+            res.render("employeeList", { data: {}, title: "Employees" });
         });
     } else if (req.query.manager) {
-        dataService.getAllEmployeesByManager(req.query.manager).then((dataMessage) => {
-            res.json({ dataMessage });
+        dataService.getAllEmployeesByManager(req.query.manager).then((data) => {
+            res.render("employeeList", { data: data, title: "Employees(Managers)" });
         }).catch((errorMessage) => {
-            res.json({ message: errorMessage });
+            res.render("employeeList", { data: {}, title: "Employees (Managers)" });
         });
     } else if (req.query.department) {
-        dataService.getAllEmployeesByDepartment(req.query.department).then((dataMessage) => {
-            res.json({ dataMessage });
+        dataService.getAllEmployeesByDepartment(req.query.department).then((data) => {
+            res.render("departmentList", { data: data, title: "Departments" });
         }).catch((errorMessage) => {
-            res.json({ message: errorMessage });
+            res.render("departmentList", { data: {}, title: "Departments" });
         });
     } else {
-        dataService.getAllEmployees().then((dataMessage) => {
-            res.json({ dataMessage });
+        dataService.getAllEmployees().then((data) => {
+            res.render("employeeList", { data: data, title: "Employees" });
         }).catch((errorMessage) => {
-            res.json({ message: errorMessage });
+            res.render("employeeList", { data: {}, title: "Employees" });
         });
 
     }
 });
 
+app.get("/employees/add", (req, res) => {
+    res.render("addEmployee");
+});
+
+app.post("/employees/add", (req, res) => {
+    console.log("USING EMPLOYEES - ADDed" + JSON.stringify(req.body));
+    dataService.addEmployee(req.body)
+        .then(res.redirect("/employees"));
+});
+
+
 app.get("/employees/:empNum", function (req, res) {
-    dataService.getEmployeeByNum(req.params.empNum).then((dataMessage) => {
-        res.json({ dataMessage });
+    dataService.getEmployeeByNum(req.params.empNum).then((data) => {
+        res.render("employee", { data: data });
     }).catch((errorMessage) => {
-        res.json({ message: errorMessage });
+        res.status(404).sned("Employee Not Found")
     });
 });
 
 app.get("/departments", function (req, res) {
-    dataService.getDepartments().then((dataMessage) => {
-        res.json({ dataMessage });
+    dataService.getDepartments().then((data) => {
+        res.render("departmentList", { data: data, title: "Departments" });
     }).catch((errorMessage) => {
-        res.json({ message: errorMessage });
+        res.render("departmentList", { data: {}, title: "Departments" });
     });
 });
 
 app.get("/managers", function (req, res) {
-    dataService.getManagers().then((dataMessage) => {
+    dataService.getManagers().then((data) => {
         res.json({ dataMessage });
     }).catch((errorMessage) => {
         res.json({ message: errorMessage });
     });
 })
+
+app.post("/employee/update", (req, res) => {
+    console.log(req.body + "employee update being called");
+    dataService.updateEmployee(req.body)
+        .then(res.redirect("/employees"));
+});
 
 app.use(function (req, res) {
     res.status(404).send("Page not found.");
