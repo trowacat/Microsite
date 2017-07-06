@@ -282,10 +282,6 @@ ul {
   max-height: 60vh;
   }
 
-.title::-webkit-scrollbar{
-  display:none;
-}
-
   .content {
     z-index: 10;
     position: absolute;
