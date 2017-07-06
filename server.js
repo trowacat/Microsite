@@ -4,7 +4,7 @@
 * of this assignment has been copied manually or electronically from any other source
 * (including 3rd party web sites) or distributed to other students.
 *
-* Name: Brandon Wissmann Student ID: 122538168 Date: 5/24/17
+* Name: Brandon Wissmann Student ID: 122538168 Date: 6/21/2017
 *
 * Online (Heroku) Link: https://stark-fortress-99847.herokuapp.com
 *
@@ -35,7 +35,7 @@ app.engine(".hbs", exphbs({
         }
     }
 
-}));
+}))
 
 app.set("view engine", ".hbs");
 
@@ -48,17 +48,17 @@ function onHttpStart() {
 
 // setup a 'route' to listen on the default url path (http://localhost)
 app.get("/", function (req, res) {
-    res.render("home");
-});
+    res.send(dataService.getAllEmployees());
+})
 
 // setup another route to listen on /about
 app.get("/about", function (req, res) {
     res.render("about");
-});
+})
 
 app.get("/scramble", function (req, res) {
     res.sendFile(path.join(__dirname + "/node_modules/scramblejs/dist/scramble.js"));
-});
+})
 
 app.get("/employees", function (req, res) {
     if (req.query.status) {
@@ -87,26 +87,34 @@ app.get("/employees", function (req, res) {
         });
 
     }
-});
+})
 
 app.get("/employees/add", (req, res) => {
     res.render("addEmployee");
 });
 
 app.post("/employees/add", (req, res) => {
-    console.log("USING EMPLOYEES - ADDed" + JSON.stringify(req.body));
     dataService.addEmployee(req.body)
         .then(res.redirect("/employees"));
-});
+})
 
 
-app.get("/employees/:empNum", function (req, res) {
-    dataService.getEmployeeByNum(req.params.empNum).then((data) => {
+app.get("/employees/:employeeNum", function (req, res) {
+    dataService.getEmployeeByNum(req.params.employeeNum).then((data) => {
         res.render("employee", { data: data });
     }).catch((errorMessage) => {
-        res.status(404).sned("Employee Not Found")
+        res.status(404).send("Employee Not Found")
     });
-});
+})
+
+app.get("/departments/add", (req, res) => {
+    res.render("addDepartment");
+})
+
+app.post("/departments/add", (req, res) => {
+    dataService.addDepartment(req.body)
+        .then(res.redirect("/departments"));
+})
 
 app.get("/departments", function (req, res) {
     dataService.getDepartments().then((data) => {
@@ -114,20 +122,41 @@ app.get("/departments", function (req, res) {
     }).catch((errorMessage) => {
         res.render("departmentList", { data: {}, title: "Departments" });
     });
-});
+})
+
+
+app.post("/departments/update", (req, res) => {
+    dataService.updateDepartment(req.body)
+        .then(() => {
+            res.redirect("/departments")
+        })
+
+})
+
+app.get("/employees/:employeeNum", function (req, res) {
+    dataService.getDepartmentById(req.params.employeeNum).then((data) => {
+        res.render("department", { data: data });
+    }).catch((errorMessage) => {
+        res.status(404).send("Department Not Found")
+    });
+})
+
 
 app.get("/managers", function (req, res) {
     dataService.getManagers().then((data) => {
         res.render("employeeList", { data: data, title: "Employees(Managers)" });
-    }).catch(() => { res.render("employeeList", { data: {}, title: "Employees (Managers)" });
+    }).catch(() => {
+        res.render("employeeList", { data: {}, title: "Employees (Managers)" });
     });
-});
+})
 
 app.post("/employee/update", (req, res) => {
-    console.log(req.body + "employee update being called");
     dataService.updateEmployee(req.body)
-        .then(res.redirect("/employees"));
-});
+        .then(() => {
+            res.redirect("/employees")
+        })
+
+})
 
 app.use(function (req, res) {
     res.status(404).send("Page not found.");
