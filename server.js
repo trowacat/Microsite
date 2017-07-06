@@ -1,10 +1,10 @@
 /*********************************************************************************
-* WEB322 – Assignment 02
+* WEB322 – Assignment 05
 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
 * of this assignment has been copied manually or electronically from any other source
 * (including 3rd party web sites) or distributed to other students.
 *
-* Name: Brandon Wissmann Student ID: 122538168 Date: 6/21/2017
+* Name: Brandon Wissmann Student ID: 122538168 Date: 7/07/2017
 *
 * Online (Heroku) Link: https://stark-fortress-99847.herokuapp.com
 *
