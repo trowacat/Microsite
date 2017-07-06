@@ -48,7 +48,7 @@ function onHttpStart() {
 
 // setup a 'route' to listen on the default url path (http://localhost)
 app.get("/", function (req, res) {
-    res.send(dataService.getAllEmployees());
+    res.render('home');
 })
 
 // setup another route to listen on /about
@@ -90,7 +90,8 @@ app.get("/employees", function (req, res) {
 })
 
 app.get("/employees/add", (req, res) => {
-    res.render("addEmployee");
+    dataService.getDepartments()
+        .then((data) => res.render("addEmployee", { departments: data }))
 });
 
 app.post("/employees/add", (req, res) => {
@@ -99,12 +100,41 @@ app.post("/employees/add", (req, res) => {
 })
 
 
-app.get("/employees/:employeeNum", function (req, res) {
-    dataService.getEmployeeByNum(req.params.employeeNum).then((data) => {
-        res.render("employee", { data: data });
-    }).catch((errorMessage) => {
-        res.status(404).send("Employee Not Found")
-    });
+app.get("/employee/:empNum", (req, res) => {
+    // initialize an empty object to store the values
+    let viewData = {};
+    dataService.getEmployeeByNum(req.params.empNum)
+        .then((data) => {
+            viewData.data = data; //store employee data in the "viewData" object as "data"
+        }).catch(() => {
+            viewData.data = null; // set employee to null if there was an error
+        }).then(dataService.getDepartments)
+        .then((data) => {
+            viewData.departments = data; // store department data in the "viewData" object as "departments"
+
+            // loop through viewData.departments and once we have found the departmentId that matches
+            // the employee's "department" value, add a "selected" property to the matching
+            // viewData.departments object
+            for (let i = 0; i < viewData.departments.length; i++) {
+                if (viewData.departments[i].departmentId == viewData.data.department) {
+                    viewData.departments[i].selected = true;
+                }
+            }
+        }).catch(() => {
+            viewData.departments = []; // set departments to empty if there was an error
+        }).then(() => {
+            if (viewData.data == null) { // if no employee - return an error
+                res.status(404).send("Employee Not Found");
+            } else {
+                res.render("employee", { viewData: viewData }); // render the "employee" view
+            }
+        });
+});
+
+
+app.get("/employee/delete/:empNum", (req, res) => {
+    dataService.deleteEmployeeByNum(req.params.empNum)
+        .then(res.redirect("/employees"))
 })
 
 app.get("/departments/add", (req, res) => {
@@ -133,8 +163,8 @@ app.post("/departments/update", (req, res) => {
 
 })
 
-app.get("/employees/:employeeNum", function (req, res) {
-    dataService.getDepartmentById(req.params.employeeNum).then((data) => {
+app.get("/departments/:departmentId", function (req, res) {
+    dataService.getDepartmentById(req.params.departmentId).then((data) => {
         res.render("department", { data: data });
     }).catch((errorMessage) => {
         res.status(404).send("Department Not Found")

@@ -186,7 +186,6 @@ module.exports.getAllEmployeesByManager = (manager) => {
 
 module.exports.getEmployeeByNum = (num) => {
     return new Promise(function (resolve, reject) {
-        console.log('looking for employee num:::: ' + num);
         employeeTable.findAll({
             where: {
                 employeeNum: num
@@ -219,6 +218,22 @@ module.exports.getManagers = () => {
     });
 }
 
+module.exports.deleteEmployeeByNum = (empNum) => {
+    return new Promise(function (resolve, reject) {
+        employeeTable.destroy({
+            where: {
+                employeeNum: empNum
+            }
+        })
+            .then(resolve())
+            .catch((err) => function (err) {
+                console.log('unable to remove employee');
+                reject();
+            })
+    });
+}
+
+
 
 // Department functions
 
@@ -243,14 +258,17 @@ module.exports.updateDepartment = (departmentData) => {
     return new Promise((resolve, reject) => {
 
         for (var prop in departmentData) {
-            if (employeeData[prop] === '' | employeeData[prop] === undefined)
-                employeeData[prop] = null;
+            if (departmentData[prop] === '' | departmentData[prop] === undefined)
+                departmentData[prop] = null;
         }
 
         departmentTable.update({
-            departmentId: departmentData.departmentId,
             departmentName: departmentData.departmentName
-        })
+        }, {
+                where: {
+                    departmentId: departmentData.departmentId
+                }
+            })
             .then(resolve());
     })
         .catch('unable to update department');
@@ -285,3 +303,4 @@ module.exports.getDepartments = () => {
             })
     });
 }
+

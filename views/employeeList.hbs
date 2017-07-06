@@ -26,13 +26,15 @@ New Employee</a>
                     {{#each data}}
                     <tr>
                         <td>{{employeeNum}}</td>
-                        <td><a href="/employees/{{employeeNum}}">{{firstName}} {{last_name}}</a></td>
+                        <td><a href="/employee/{{employeeNum}}">{{firstName}} {{last_name}}</a></td>
                         <td><a href="mailto:{{email}}">{{email}}</a></td>
                         <td>{{addressStreet}} {{addressCity}} {{addressState}} {{addressPostal}}</td>
                         <td><a href="/employees?manager={{employeeManagerNum}}">{{employeeManagerNum}}</a></td>
                         <td><a href="/employees?status={{status}}">{{status}}</a></td>
                         <td><a href="/employees?department={{department}}">{{department}}</a></td>
                         <td>{{hireDate}}</td>
+                        <td><a href="/employee/delete/{{employeeNum}}" class="btn btn-danger pull-right" style="margintop:5px;">
+remove</a></td>
                     </tr>
                     {{/each}}
                 </tbody>
