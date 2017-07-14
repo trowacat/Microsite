@@ -12,6 +12,7 @@
 
 const express = require("express");
 const dataService = require("./data-service.js");
+const dataServiceComment = require("./data-service-comments.js");
 const path = require("path");
 const exphbs = require("express-handlebars");
 const bodyParser = require("body-parser");
