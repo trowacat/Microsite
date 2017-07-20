@@ -12,7 +12,7 @@
 
 const express = require("express");
 const dataService = require("./data-service.js");
-const dataServiceComment = require("./data-service-comments.js");
+const dataServiceComments = require("./data-service-comments.js");
 const path = require("path");
 const exphbs = require("express-handlebars");
 const bodyParser = require("body-parser");
@@ -54,7 +54,11 @@ app.get("/", function (req, res) {
 
 // setup another route to listen on /about
 app.get("/about", function (req, res) {
-    res.render("about");
+    dataServiceComments.getAllComments()
+        .then((dataFromPromise) =>
+            res.render("about", { data: dataFromPromise }))
+        .catch(() =>
+            res.render("about"));
 })
 
 app.get("/scramble", function (req, res) {
@@ -189,9 +193,41 @@ app.post("/employee/update", (req, res) => {
 
 })
 
+
+// Comments section routes
+
+app.post("/about/addComment", (req, res) => {
+    dataServiceComments.addComment(req.body)
+        .then(() => {
+            res.redirect("/about");
+        })
+        .catch((err) => {
+            console.log("err");
+            res.redirect("/about");
+        })
+})
+
+app.post("/about/addReply", (req, res) => {
+    dataServiceComments.addReply(req.body)
+        .then(() => {
+            res.redirect("/about");
+        })
+        .catch((err) => {
+            console.log("err");
+            res.redirect("/about");
+        })
+})
+
+
 app.use(function (req, res) {
     res.status(404).send("Page not found.");
 })
 // setup http server to listen on HTTP_PORT
-dataService.initialize().then(() =>
-    app.listen(HTTP_PORT, onHttpStart)).catch(() => console.log("Unable to start the server."));
+dataService.initialize()
+    .then(() => dataServiceComments.initialize())
+    .then(() => {
+        app.listen(HTTP_PORT, onHttpStart);
+    })
+    .catch(() => {
+        console.log("unable to start dataService");
+    });

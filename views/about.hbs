@@ -1,14 +1,125 @@
-<script src="js/script.js"></script>
+<h3>
 
-<center>
-    <h3>
+    Brandon Wissmann</h3>
 
-        Brandon Wissmann</h3>
+<h1>:)</h1>
 
-    <h1>:)</h1>
+<p id="first">
+    <p> Hello, I am in my third semester of the CPA program currently. I enjoy the idea of web development and would love to
+        do something like that in the future. I enjoy learning new technologies and playing around with them and am amazed
+        at the amount there is out there. </p>
 
-    <p id="first">
-        <p> Hello, I am in my third semester of the CPA program currently. I enjoy the idea of web development and would love
-            to do something like that in the future. I enjoy learning new technologies and playing around with them and am
-            amazed at the amount there is out there. </p>
-</center>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Leave a Comment</h3>
+            <div class="well">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="/about/addComment" method="POST">
+                            <div class="well">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" placeholder="Name" name="authorName" />
+                                        <br />
+                                    </div>
+                                    <div class="col-md-6">
+
+                                        <input type="email" class="form-control" placeholder="Email" name="authorEmail" />
+                                        <br />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Subject" name="subject" />
+                                        <br />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" rows="8" placeholder="Comment" name="commentText"></textarea>
+                                        <br />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2 col-md-offset-10">
+                                        <button type="submit" class="btn btn-primary form-control">Comment</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{#if data}}
+    <div class="row">
+        <div class="col-md-12">
+            <h3>All Comments</h3>
+            <hr />
+        </div>
+    </div>
+    {{/if}} {{#each data}}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="well">
+                <div class="row">
+                    <div class="col-md-12">
+                        {{commentText}}<br /><br />Posted on: {{postedDate}} by <a href="mailto:{{authorEmail}}">{{authorName}}</a>
+                    </div>
+                </div>
+                {{#each replies}}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="well">{{commentText}}<br /><br />Posted on: {{repliedDate}} by <a href="mailto:{{authorEmail}}">{{authorName}}</a>                            </div>
+                    </div>
+                </div>
+                {{/each}}
+                <div class="row">
+                    <div class="col-md-12">
+
+
+                        <button data-toggle="collapse" class="btn btn-primary btn-sm pull-right" data-target="#reply-{{_id}}">Reply</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapse" id="reply-{{_id}}">
+                <div class="well">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form action="/about/addReply" method="POST">
+                                <div class="well">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="hidden" name="comment_id" value="{{_id}}" />
+                                            <input type="text" class="form-control" placeholder="Name" name="authorName" />
+                                            <br />
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <input type="email" class="form-control" placeholder="Email" name="authorEmail" />
+                                            <br />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <textarea class="form-control" rows="8" placeholder="Comment" name="commentText"></textarea>
+                                            <br />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2 col-md-offset-10">
+                                            <input type="hidden" value="59499c405d5c76e7d0f64729" name="comment_id" />
+                                            <button type="submit" class="btn btn-primary form-control">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
