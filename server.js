@@ -1,18 +1,20 @@
 /*********************************************************************************
-* WEB322 – Assignment 06
+* WEB322 – Assignment 07
 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
 * of this assignment has been copied manually or electronically from any other source
 * (including 3rd party web sites) or distributed to other students.
 *
-* Name: Brandon Wissmann Student ID: 122538168 Date: 7/19/2017
+* Name: Brandon Wissmann Student ID: 122538168 Date: 8/4/2017
 *
 * Online (Heroku) Link: https://stark-fortress-99847.herokuapp.com
 *
 ********************************************************************************/
 
 const express = require("express");
+const clientSessions = require("client-sessions")
 const dataService = require("./data-service.js");
 const dataServiceComments = require("./data-service-comments.js");
+const dataServiceAuth = require("./data-service-auth.js");
 const path = require("path");
 const exphbs = require("express-handlebars");
 const bodyParser = require("body-parser");
@@ -40,6 +42,26 @@ app.engine(".hbs", exphbs({
 
 app.set("view engine", ".hbs");
 
+app.use(clientSessions({ //set up client session middleware
+    cookieName: "session",
+    secret: "assignment7",
+    duration: 2 * 60 * 1000,
+    activeDuration: 1000 * 60
+}));
+
+app.use(function (req, res, next) {
+    res.locals.session = req.session;
+    next();
+});
+
+function ensureLogin(req, res, next) { //ensure the user is logged in function
+    if (!req.session.user) {
+        res.redirect("/login");
+    } else {
+        next();
+    }
+}
+
 var HTTP_PORT = process.env.PORT || 8080;
 
 // call this function after the http server starts listening for requests
@@ -65,7 +87,7 @@ app.get("/scramble", function (req, res) {
     res.sendFile(path.join(__dirname + "/node_modules/scramblejs/dist/scramble.js"));
 })
 
-app.get("/employees", function (req, res) {
+app.get("/employees", ensureLogin, function (req, res) {
     if (req.query.status) {
         dataService.getAllEmployeesByStatus(req.query.status).then((data) => {
             res.render("employeeList", { data: dataMessage, title: "Employees" });
@@ -94,18 +116,18 @@ app.get("/employees", function (req, res) {
     }
 })
 
-app.get("/employees/add", (req, res) => {
+app.get("/employees/add", ensureLogin, (req, res) => {
     dataService.getDepartments()
         .then((data) => res.render("addEmployee", { departments: data }))
 });
 
-app.post("/employees/add", (req, res) => {
+app.post("/employees/add", ensureLogin, (req, res) => {
     dataService.addEmployee(req.body)
         .then(res.redirect("/employees"));
 })
 
 
-app.get("/employee/:empNum", (req, res) => {
+app.get("/employee/:empNum", ensureLogin, (req, res) => {
     // initialize an empty object to store the values
     let viewData = {};
     dataService.getEmployeeByNum(req.params.empNum)
@@ -137,21 +159,21 @@ app.get("/employee/:empNum", (req, res) => {
 });
 
 
-app.get("/employee/delete/:empNum", (req, res) => {
+app.get("/employee/delete/:empNum", ensureLogin, (req, res) => {
     dataService.deleteEmployeeByNum(req.params.empNum)
         .then(res.redirect("/employees"))
 })
 
-app.get("/departments/add", (req, res) => {
+app.get("/departments/add", ensureLogin, (req, res) => {
     res.render("addDepartment");
 })
 
-app.post("/departments/add", (req, res) => {
+app.post("/departments/add", ensureLogin, (req, res) => {
     dataService.addDepartment(req.body)
         .then(res.redirect("/departments"));
 })
 
-app.get("/departments", function (req, res) {
+app.get("/departments", ensureLogin, function (req, res) {
     dataService.getDepartments().then((data) => {
         res.render("departmentList", { data: data, title: "Departments" });
     }).catch((errorMessage) => {
@@ -160,7 +182,7 @@ app.get("/departments", function (req, res) {
 })
 
 
-app.post("/departments/update", (req, res) => {
+app.post("/departments/update", ensureLogin, (req, res) => {
     dataService.updateDepartment(req.body)
         .then(() => {
             res.redirect("/departments")
@@ -168,7 +190,7 @@ app.post("/departments/update", (req, res) => {
 
 })
 
-app.get("/departments/:departmentId", function (req, res) {
+app.get("/departments/:departmentId", ensureLogin, function (req, res) {
     dataService.getDepartmentById(req.params.departmentId).then((data) => {
         res.render("department", { data: data });
     }).catch((errorMessage) => {
@@ -177,7 +199,7 @@ app.get("/departments/:departmentId", function (req, res) {
 })
 
 
-app.get("/managers", function (req, res) {
+app.get("/managers", ensureLogin, function (req, res) {
     dataService.getManagers().then((data) => {
         res.render("employeeList", { data: data, title: "Employees(Managers)" });
     }).catch(() => {
@@ -185,7 +207,7 @@ app.get("/managers", function (req, res) {
     });
 })
 
-app.post("/employee/update", (req, res) => {
+app.post("/employee/update", ensureLogin, (req, res) => {
     dataService.updateEmployee(req.body)
         .then(() => {
             res.redirect("/employees")
@@ -193,6 +215,51 @@ app.post("/employee/update", (req, res) => {
 
 })
 
+app.get("/login", (req, res) => {
+    res.render("login");
+})
+
+app.get("/register", (req, res) => {
+    res.render("register");
+})
+
+app.post("/register", (req, res) => {
+    dataServiceAuth.registerUser(req.body)
+        .then(() => {
+            res.render("register", { successMessage: "User created" });
+        })
+        .catch((err) => {
+            res.render("register", { errorMessage: err, user: req.body.user });
+        })
+
+})
+
+app.post("/login", (req, res) => {
+    const username = req.body.user;
+    const password = req.body.password;
+
+    if (username === "" || password === "") {
+        // Render 'missing credentials'
+        return res.render("login", { errorMsg: "Missing credentials." });
+
+    }
+
+        dataServiceAuth.checkUser(req.body)
+            .then(() => {
+                req.session.user = {
+                    username: username,
+                };
+                res.redirect("/employees");
+            })
+            .catch((err) => {
+                res.render("/login", { errorMessage: err, user: req.body.user });
+            })
+})
+
+app.get("/logout", (req, res) => {
+    req.session.reset();
+    res.redirect("/");
+})
 
 // Comments section routes
 
@@ -224,10 +291,11 @@ app.use(function (req, res) {
 })
 // setup http server to listen on HTTP_PORT
 dataService.initialize()
-    .then(() => dataServiceComments.initialize())
+    .then(dataServiceComments.initialize)
+    .then(dataServiceAuth.initialize)
     .then(() => {
         app.listen(HTTP_PORT, onHttpStart);
     })
-    .catch(() => {
-        console.log("unable to start dataService");
+    .catch((err) => {
+        console.log("unable to start the server: " + err);
     });
