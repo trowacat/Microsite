@@ -1,5 +1,5 @@
 /*********************************************************************************
-* WEB322 – Assignment 07
+* WEB322 – Assignment 08
 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
 * of this assignment has been copied manually or electronically from any other source
 * (including 3rd party web sites) or distributed to other students.
@@ -23,6 +23,7 @@ const app = express();
 app.use(express.static('public'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.engine(".hbs", exphbs({
     extname: ".hbs",
@@ -244,16 +245,16 @@ app.post("/login", (req, res) => {
 
     }
 
-        dataServiceAuth.checkUser(req.body)
-            .then(() => {
-                req.session.user = {
-                    username: username,
-                };
-                res.redirect("/employees");
-            })
-            .catch((err) => {
-                res.render("/login", { errorMessage: err, user: req.body.user });
-            })
+    dataServiceAuth.checkUser(req.body)
+        .then(() => {
+            req.session.user = {
+                username: username,
+            };
+            res.redirect("/employees");
+        })
+        .catch((err) => {
+            res.render("login", { errorMessage: err, user: req.body.user });
+        })
 })
 
 app.get("/logout", (req, res) => {
@@ -261,6 +262,18 @@ app.get("/logout", (req, res) => {
     res.redirect("/");
 })
 
+app.post("/api/updatePassword", (req, res) => {
+    dataServiceAuth.checkUser({ user: req.body.user, password: req.body.currentPassword })
+        .then(dataServiceAuth.updatePassword(req.body))
+        .then(res.json({ successMessage: "Password changed successfully for user: " + req.body.user })
+            .catch((err) => {
+                res.json({ errorMessage: err })
+            })
+            .catch((err) => {
+                res.json({ errorMessage: err })
+            })
+        )
+})
 // Comments section routes
 
 app.post("/about/addComment", (req, res) => {
